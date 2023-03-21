@@ -1,6 +1,21 @@
-public struct JSCPolyfills {
-    public private(set) var text = "Hello, World!"
+//
+//  JSCPolyfills.swift
+//
+//
+//  Created by Alexander Steinhauer on 21.03.23.
+//
 
-    public init() {
+import JavaScriptCore
+
+public class JSCPolyfills {
+    private init() {}
+    
+    public static func createJSContext(for virtualMaschine: JSVirtualMachine) -> JSContext? {
+        guard let context = JSContext(virtualMachine: virtualMaschine) else {
+            return nil
+        }
+        
+        ConsolePolyfill.register(context: context)
+        return context
     }
 }
