@@ -16,6 +16,7 @@ public class JSCPolyfills {
         }
         
         ConsolePolyfill.register(context: context)
+        TimerPolyfill.register(context: context)
         return context
     }
 }
