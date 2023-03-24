@@ -5,9 +5,10 @@
 //  Created by Alexander Steinhauer on 21.03.23.
 //
 
+import Foundation
 import JavaScriptCore
 
-public class JSCPolyfills {
+public final class JSCPolyfills {
     private init() {}
     
     public static func createJSContext(for virtualMaschine: JSVirtualMachine) -> JSContext? {
@@ -17,6 +18,7 @@ public class JSCPolyfills {
         
         ConsolePolyfill.register(context: context)
         TimerPolyfill.register(context: context)
+        FetchPolyfill.register(context: context)
         return context
     }
 }
