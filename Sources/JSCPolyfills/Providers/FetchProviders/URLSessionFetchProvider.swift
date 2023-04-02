@@ -8,7 +8,7 @@
 import Foundation
 
 final class URLSessionFetchProvider: FetchProvider {
-    func fetch(request: Request) async -> Response? {
+    func fetch(request: FetchRequest) async -> FetchResponse? {
         guard let urlRequest = buildURLRequest(from: request) else {
             return nil
         }
@@ -21,7 +21,7 @@ final class URLSessionFetchProvider: FetchProvider {
         }
     }
     
-    private func buildURLRequest(from request: Request) -> URLRequest? {
+    private func buildURLRequest(from request: FetchRequest) -> URLRequest? {
         guard let url = URL(string: request.url) else {
             return nil
         }
@@ -32,11 +32,11 @@ final class URLSessionFetchProvider: FetchProvider {
         return urlRequest
     }
     
-    private func buildResponse(fromData data: Data, response: URLResponse) -> Response? {
+    private func buildResponse(fromData data: Data, response: URLResponse) -> FetchResponse? {
         guard let response = response as? HTTPURLResponse, let url = response.url?.absoluteString else {
             return nil
         }
         
-        return Response(headers: .init(dict: response.allHeaderFields), status: response.statusCode, url: url, data: data)
+        return FetchResponse(headers: .init(dict: response.allHeaderFields), status: response.statusCode, url: url, data: data)
     }
 }

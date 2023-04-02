@@ -8,15 +8,14 @@
 import Foundation
 import JavaScriptCore
 
-final class FetchPolyfill {
-    static func register(context: JSContext) {
-        let polyfill = FetchPolyfill()
-        polyfill.register(context: context)
+public final class FetchPolyfill {
+    private let fetchProvider: FetchProvider
+    
+    public init(fetchProvider: FetchProvider) {
+        self.fetchProvider = fetchProvider
     }
     
-    private let fetchProvider: FetchProvider = URLSessionFetchProvider()
-    
-    private func register(context: JSContext) {
+    func register(context: JSContext) {
         let fetch: @convention(block) (JSValue, JSValue?) -> JSValue = { resource, options in
             JSValue(newPromiseIn: context) { resolve, reject in
                 Task {
@@ -37,17 +36,16 @@ final class FetchPolyfill {
         }
         
         context.setObject(fetch, forKeyedSubscript: "fetch" as NSString)
-        
-        context.setObject(Headers.self, forKeyedSubscript: "Headers" as NSString)
-        context.setObject(Request.self, forKeyedSubscript: "Request" as NSString)
-        context.setObject(Response.self, forKeyedSubscript: "Response" as NSString)
+        context.setObject(FetchHeaders.self, forKeyedSubscript: "Headers" as NSString)
+        context.setObject(FetchRequest.self, forKeyedSubscript: "Request" as NSString)
+        context.setObject(FetchResponse.self, forKeyedSubscript: "Response" as NSString)
     }
     
-    private func buildRequest(resource: JSValue, options: JSValue?) -> Request {
-        if let request = resource.toObjectOf(Request.self) as? Request {
+    private func buildRequest(resource: JSValue, options: JSValue?) -> FetchRequest {
+        if let request = resource.toObjectOf(FetchRequest.self) as? FetchRequest {
             return request
         }
         
-        return Request(input: resource, options: options)
+        return FetchRequest(input: resource, options: options)
     }
 }

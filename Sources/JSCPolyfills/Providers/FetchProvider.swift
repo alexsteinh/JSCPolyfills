@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol FetchProvider {
-    func fetch(request: Request) async -> Response?
+public protocol FetchProvider {
+    func fetch(request: FetchRequest) async -> FetchResponse?
 }

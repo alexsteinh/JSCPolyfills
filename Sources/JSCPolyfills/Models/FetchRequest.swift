@@ -1,5 +1,5 @@
 //
-//  Request.swift
+//  FetchRequest.swift
 //  
 //
 //  Created by Alexander Steinhauer on 24.03.23.
@@ -11,16 +11,16 @@ import JavaScriptCore
 @objc private protocol RequestExport: JSExport {
     init(input: JSValue, options: JSValue?)
    
-    var headers: Headers { get }
+    var headers: FetchHeaders { get }
     var method: String { get }
     var url: String { get }
 }
 
-final class Request: NSObject, RequestExport {
-    let input: String
-    let options: FetchOptionsProxy
+public final class FetchRequest: NSObject, RequestExport {
+    public let input: String
+    public let options: FetchOptions
     
-    var headers: Headers {
+    var headers: FetchHeaders {
         options.headers
     }
     
@@ -33,30 +33,19 @@ final class Request: NSObject, RequestExport {
     }
     
     init(input: JSValue, options: JSValue?) {
-        if let request = input.toObjectOf(Request.self) as? Request {
+        if let request = input.toObjectOf(FetchRequest.self) as? FetchRequest {
             self.input = request.input
             self.options = request.options
         } else {
             self.input = input.toString() ?? ""
-            self.options = FetchOptionsProxy(options: options)
+            self.options = FetchOptions(options: options)
         }
         
         super.init()
     }
     
-    init(input: String, options: FetchOptionsProxy) {
+    public init(input: String, options: FetchOptions) {
         self.input = input
         self.options = options
-    }
-    
-    var urlRequest: URLRequest? {
-        guard let url = URL(string: url) else {
-            return nil
-        }
-        
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = options.method
-        urlRequest.allHTTPHeaderFields = options.headers.dict()
-        return urlRequest
     }
 }
