@@ -1,5 +1,5 @@
 //
-//  Response.swift
+//  FetchResponse.swift
 //  
 //
 //  Created by Alexander Steinhauer on 24.03.23.
@@ -11,7 +11,7 @@ import JavaScriptCore
 @objc private protocol ResponseExport: JSExport {
     init()
    
-    var headers: Headers { get }
+    var headers: FetchHeaders { get }
     var ok: Bool { get }
     var status: Int { get }
     var url: String { get }
@@ -20,8 +20,8 @@ import JavaScriptCore
     func text() -> JSValue
 }
 
-final class Response: NSObject, ResponseExport {
-    let headers: Headers
+public final class FetchResponse: NSObject, ResponseExport {
+    let headers: FetchHeaders
     let status: Int
     let url: String
     private let data: Data
@@ -39,7 +39,7 @@ final class Response: NSObject, ResponseExport {
         super.init()
     }
     
-    init(headers: Headers, status: Int, url: String, data: Data) {
+    public init(headers: FetchHeaders, status: Int, url: String, data: Data) {
         self.headers = headers
         self.status = status
         self.url = url
@@ -48,7 +48,7 @@ final class Response: NSObject, ResponseExport {
         super.init()
     }
     
-    func clone() -> Response {
+    func clone() -> FetchResponse {
         .init(headers: headers.clone(), status: status, url: url, data: data)
     }
     

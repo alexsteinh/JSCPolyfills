@@ -9,16 +9,25 @@ import Foundation
 import JavaScriptCore
 
 public final class JSCPolyfills {
-    private init() {}
+    private var fetchPolyfill: FetchPolyfill
     
-    public static func createJSContext(for virtualMaschine: JSVirtualMachine) -> JSContext? {
-        guard let context = JSContext(virtualMachine: virtualMaschine) else {
+    public init() {
+        fetchPolyfill = .init(fetchProvider: URLSessionFetchProvider())
+    }
+    
+    public func setFetchPolyfill(_ fetchPolyfill: FetchPolyfill) -> Self {
+        self.fetchPolyfill = fetchPolyfill
+        return self
+    }
+    
+    public func createJSContext(for virtualMachine: JSVirtualMachine) -> JSContext? {
+        guard let context = JSContext(virtualMachine: virtualMachine) else {
             return nil
         }
         
         ConsolePolyfill.register(context: context)
         TimerPolyfill.register(context: context)
-        FetchPolyfill.register(context: context)
+        fetchPolyfill.register(context: context)
         return context
     }
 }

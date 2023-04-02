@@ -1,5 +1,5 @@
 //
-//  Headers.swift
+//  FetchHeaders.swift
 //  
 //
 //  Created by Alexander Steinhauer on 24.03.23.
@@ -22,7 +22,7 @@ import JavaScriptCore
     func values() -> [String]
 }
 
-final class Headers: NSObject, HeadersExport {
+public final class FetchHeaders: NSObject, HeadersExport {
     private var headers: [String: String]
     
     init(headers: JSValue) {
@@ -35,7 +35,7 @@ final class Headers: NSObject, HeadersExport {
         }
     }
     
-    init(dict: [AnyHashable: Any]) {
+    public init(dict: [AnyHashable: Any]) {
         headers = Self.headers(from: dict)
         super.init()
     }
@@ -64,7 +64,7 @@ final class Headers: NSObject, HeadersExport {
         return Dictionary(uniqueKeysWithValues: entries)
     }
     
-    static var empty: Headers {
+    public static var empty: FetchHeaders {
         .init(dict: [:])
     }
     
@@ -76,7 +76,7 @@ final class Headers: NSObject, HeadersExport {
         headers.map { [$0, $1] }
     }
     
-    func dict() -> [String: String] {
+    public func dict() -> [String: String] {
         headers
     }
     
@@ -100,7 +100,7 @@ final class Headers: NSObject, HeadersExport {
         Array(headers.values)
     }
     
-    func clone() -> Headers {
+    func clone() -> FetchHeaders {
         .init(dict: headers)
     }
 }
