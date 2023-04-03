@@ -27,6 +27,18 @@ public extension JSValue {
             return .failure(.init(message: "Invalid method"))
         }
         
+        return await resolvePromise(promise)
+    }
+    
+    func asyncCall(withArguments arguments: [Any]) async -> Result<JSValue, JSError> {
+        guard let promise = call(withArguments: arguments) else {
+            return .failure(.init(message: "Invalid call"))
+        }
+        
+        return await resolvePromise(promise)
+    }
+    
+    private func resolvePromise(_ promise: JSValue) async -> Result<JSValue, JSError> {
         return await withCheckedContinuation { continuation in
             let resolveCallback: @convention(block) (JSValue) -> Void = { value in
                 continuation.resume(returning: .success(value))
