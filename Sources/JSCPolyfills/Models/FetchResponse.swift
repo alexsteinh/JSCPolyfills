@@ -16,6 +16,7 @@ import JavaScriptCore
     var status: Int { get }
     var url: String { get }
     
+    func arrayBuffer() -> JSValue
     func json() -> JSValue
     func text() -> JSValue
 }
@@ -50,6 +51,19 @@ public final class FetchResponse: NSObject, ResponseExport {
     
     func clone() -> FetchResponse {
         .init(headers: headers.clone(), status: status, url: url, data: data)
+    }
+    
+    func arrayBuffer() -> JSValue {
+        .init(newPromiseIn: JSContext.current()) { [data] resolve, reject in
+            // TODO: Works for the moment, but needs a cleaner solution.
+            let byteArray = data.map(\.description).joined(separator: ",")
+            guard let array = JSContext.current().evaluateScript("new Uint8Array([\(byteArray)])") else {
+                reject?.call(withArguments: ["Could not encode response into an ArrayBuffer"])
+                return
+            }
+            
+            resolve?.call(withArguments: [array])
+        }
     }
     
     func json() -> JSValue {
