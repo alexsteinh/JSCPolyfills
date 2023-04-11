@@ -22,40 +22,40 @@ public extension JSValue {
         }
     }
     
-    func invokeAsyncMethod(_ method: String, withArguments arguments: [Any]) async -> Result<JSValue, JSError> {
+    func invokeAsyncMethod(_ method: String, withArguments arguments: [Any]) async throws -> JSValue {
         guard let promise = invokeMethod(method, withArguments: arguments) else {
-            return .failure(.init(message: "Invalid method"))
+            throw JSError(message: "Invalid method")
         }
         
-        return await resolvePromise(promise)
+        return try await resolvePromise(promise)
     }
     
-    func asyncCall(withArguments arguments: [Any]) async -> Result<JSValue, JSError> {
+    func asyncCall(withArguments arguments: [Any]) async throws -> JSValue {
         guard let promise = call(withArguments: arguments) else {
-            return .failure(.init(message: "Invalid call"))
+            throw JSError(message: "Invalid call")
         }
         
-        return await resolvePromise(promise)
+        return try await resolvePromise(promise)
     }
     
-    private func resolvePromise(_ promise: JSValue) async -> Result<JSValue, JSError> {
-        return await withCheckedContinuation { continuation in
+    private func resolvePromise(_ promise: JSValue) async throws -> JSValue {
+        return try await withCheckedThrowingContinuation { continuation in
             let resolveCallback: @convention(block) (JSValue) -> Void = { value in
-                continuation.resume(returning: .success(value))
+                continuation.resume(returning: value)
             }
             
             let rejectCallback: @convention(block) (JSValue?) -> Void = { error in
                 let wrappedError = JSError(message: error?.invokeMethod("toString", withArguments: [])?.toString() ?? "unknown")
-                continuation.resume(returning: .failure(wrappedError))
+                continuation.resume(throwing: wrappedError)
             }
             
             guard let resolveValue = JSValue(object: resolveCallback, in: context), let rejectValue = JSValue(object: rejectCallback, in: context) else {
-                continuation.resume(returning: .failure(.init(message: "Failed to wrap callbacks into JSValues")))
+                continuation.resume(throwing: JSError(message: "Failed to wrap callbacks into JSValues"))
                 return
             }
             
             guard promise.invokeMethod("then", withArguments: [resolveValue, rejectValue])?.isUndefined == false else {
-                continuation.resume(returning: .failure(.init(message: "Failed to invoke 'Promise.then'")))
+                continuation.resume(throwing: JSError(message: "Failed to invoke 'Promise.then'"))
                 return
             }
         }
